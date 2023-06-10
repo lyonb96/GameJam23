@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class Extensions
@@ -11,4 +14,37 @@ public static class Extensions
     {
         return new Vector3(v.x, v.y, z);
     }
+
+    public static IEnumerable<Collider2D> CheckForHits(
+        Vector2 center,
+        Vector2 extent,
+        string ignoreTag = null,
+        GameObject[] ignores = null)
+    {
+        ignores ??= Array.Empty<GameObject>();
+        var hits = Physics2D.OverlapBoxAll(center, extent, 0.0F);
+        foreach (var hit in hits)
+        {
+            if (hit.GetComponent<Health>() != null
+                && !ignores.Contains(hit.gameObject)
+                && (ignoreTag == null || !hit.CompareTag(ignoreTag)))
+            {
+                yield return hit;
+            }
+        }
+    }
+}
+
+public class CooldownTimer
+{
+    public float Duration;
+
+    private float LastUse;
+
+    public void Use()
+    {
+        LastUse = Time.time;
+    }
+
+    public bool IsOnCooldown => LastUse + Duration > Time.time;
 }

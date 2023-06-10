@@ -60,6 +60,8 @@ public class Player : MonoBehaviour
     private bool CanSlide => IsGrounded && !IsSliding && DesiredMove != 0.0F && !IsAttacking;
 
     private bool FacingLeft;
+
+    private Vector3 CurrentCheckpoint;
     #endregion
 
     #region Internal attack tracking
@@ -119,6 +121,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        CurrentCheckpoint = transform.position;
         RigidBody = GetComponent<Rigidbody2D>();
         Collider = GetComponent<CapsuleCollider2D>();
         Animator = GetComponent<Animator>();
@@ -134,15 +137,27 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        var downOffset = IsSliding ? 0.05F : 0.02F;
         var groundHitTest = Physics2D.OverlapCapsuleAll(
-            RigidBody.position + (Vector2.down * 0.01F) + Collider.offset,
-            Collider.size * new Vector2(0.9F, 1.0F) * transform.localScale,
+            Collider.transform.position.Truncate() + (Vector2.down * downOffset) + Collider.offset,
+            Collider.size * new Vector2(0.95F, 1.0F) * transform.localScale,
             Collider.direction,
             0F);
         var ground = groundHitTest.FirstOrDefault(x => x.gameObject != gameObject);
+        var antiStick = false;
         if (ground == null)
         {
             IsGrounded = false;
+            // Check if we need to prevent sideways movement
+            var sideHitTest = Physics2D.OverlapCapsuleAll(
+                RigidBody.position + Collider.offset,
+                Collider.size,
+                Collider.direction,
+                0.0F);
+            if (sideHitTest.Any(x => x.gameObject != gameObject && !x.isTrigger))
+            {
+                antiStick = true;
+            }
         }
         else
         {
@@ -160,8 +175,8 @@ public class Player : MonoBehaviour
             if (IsSliding)
             {
                 IsSlideJumping = true;
+                StopSliding();
             }
-            StopSliding();
             WantsToJump = false;
             y = !IsGrounded
                 ? DoubleJumpForce
@@ -178,6 +193,10 @@ public class Player : MonoBehaviour
             : FacingLeft
                 ? -1.0F
                 : 1.0F;
+        if (antiStick)
+        {
+            moveToApply = 0.0F;
+        }
         RigidBody.velocity = new(moveToApply * Time.fixedDeltaTime * lateralSpeed, y);
         if (IsSliding && (SlideStartTime + SlideDuration) <= Time.time)
         {
@@ -188,7 +207,6 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(Health.CurrentHealth);
         DesiredMove = Input.GetAxis("Horizontal");
         Animator.SetBool("Running", DesiredMove != 0.0F);
         if (!IsSliding && !IsAttacking)
@@ -210,9 +228,22 @@ public class Player : MonoBehaviour
         }
         if (Input.GetButtonDown("Slide") && CanSlide)
         {
-            IsSliding = true;
-            SlideStartTime = Time.time;
-            Animator.SetBool("Sliding", true);
+            var accuracy = RhythmManager.GetInstance().GetBeatAccuracy(0.85F, 0.5F);
+            if (accuracy == BeatAccuracy.Miss)
+            {
+                // Missed the slide, show some kind of message?
+            }
+            else
+            {
+                IsSliding = true;
+                SlideStartTime = Time.time;
+                Animator.SetBool("Sliding", true);
+                var height = Collider.size.y;
+                var width = Collider.size.x;
+                var off = Collider.offset.y;
+                Collider.size = new Vector2(width * 0.9F, height * 0.5F);
+                Collider.offset = new Vector2(Collider.offset.x, off - (height * 0.25F));
+            }
         }
         // if (Input.GetKeyDown(KeyCode.UpArrow))
         // {
@@ -229,6 +260,11 @@ public class Player : MonoBehaviour
     {
         IsSliding = false;
         Animator.SetBool("Sliding", false);
+        var height = Collider.size.y;
+        var width = Collider.size.x;
+        var off = Collider.offset.y;
+        Collider.size = new Vector2(width / 0.9F, height * 2F);
+        Collider.offset = new Vector2(Collider.offset.x, off + (height * 0.5F));
     }
 
     void Attack()
@@ -259,6 +295,29 @@ public class Player : MonoBehaviour
     {
         IsAttacking = false;
         ActiveAttack = null;
+    }
+
+    public void SetCheckpoint(Vector3 checkpoint)
+    {
+        CurrentCheckpoint = checkpoint;
+    }
+
+    public void FellOutOfWorld()
+    {
+        RigidBody.simulated = false;
+        Health.Damage(1);
+        if (Health.CurrentHealth == 0)
+        {
+            // Reset the level
+        }
+        StartCoroutine(WaitForRespawn());
+    }
+
+    private IEnumerator WaitForRespawn()
+    {
+        yield return new WaitForSeconds(2);
+        transform.position = CurrentCheckpoint;
+        RigidBody.simulated = true;
     }
 }
 

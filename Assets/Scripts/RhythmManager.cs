@@ -23,7 +23,6 @@ public class RhythmManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Sprite = GetComponent<SpriteRenderer>();
         _instance = this;
     }
 
@@ -36,9 +35,6 @@ public class RhythmManager : MonoBehaviour
     void Update()
     {
         _instance = this;
-        var acc = GetBeatScalar();
-        acc = acc*acc;
-        Sprite.transform.localScale = new Vector3(acc, acc, acc);
     }
 
     public float GetBeatScalar()

@@ -47,13 +47,68 @@ public class Player : MonoBehaviour
 
     private bool IsGrounded;
 
-    private bool CanJump => IsGrounded || (!IsGrounded && !HasDoubleJumped);
+    private bool CanJump => (IsGrounded || (!IsGrounded && !HasDoubleJumped)) && !IsAttacking;
 
     private float SlideStartTime;
 
     private bool IsSliding;
 
-    private bool CanSlide => IsGrounded && !IsSliding;
+    private bool IsSlideJumping;
+
+    private bool CanSlide => IsGrounded && !IsSliding && DesiredMove != 0.0F && !IsAttacking;
+
+    private bool FacingLeft;
+    #endregion
+
+    #region Internal attack tracking
+    private float LastAttackTime;
+
+    private int StandardComboCounter;
+
+    private int SlideJumpComboCounter;
+
+    private bool CanAttack => !IsSliding && !IsAttacking;
+
+    private bool IsAttacking;
+
+    private ComboAction ActiveAttack;
+
+    private ComboHelper BasicAttackCombo = new()
+    {
+        Combos = new()
+        {
+            new()
+            {
+                Name = "Attack1",
+                RequiresPerfectTiming = false,
+                PerfectAccuracy = 0.8F,
+                AcceptableAccuracy = 0.6F,
+                TimeWindow = 0.0F,
+                AttackCenter = new Vector2(1, 0),
+                AttackExtents = new Vector2(0.5F, 2.0F),
+            },
+            new()
+            {
+                Name = "Attack2",
+                RequiresPerfectTiming = false,
+                PerfectAccuracy = 0.8F,
+                AcceptableAccuracy = 0.4F,
+                TimeWindow = 1F,
+                AttackCenter = new Vector2(1, 0),
+                AttackExtents = new Vector2(0.5F, 2.0F),
+            },
+            new()
+            {
+                Name = "Attack3",
+                RequiresPerfectTiming = true,
+                PerfectAccuracy = 0.7F,
+                AcceptableAccuracy = 0.5F,
+                TimeWindow = 1F,
+                AttackCenter = new Vector2(0, 0),
+                AttackExtents = new Vector2(2.5F, 1F),
+            }
+        }
+    };
     #endregion
 
     // Start is called before the first frame update
@@ -64,18 +119,17 @@ public class Player : MonoBehaviour
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
         // Set default values
-        MoveSpeed = 150.0F;
-        JumpForce = 4.0F;
-        DoubleJumpForce = 6.0F;
-        SlideSpeed = 250.0F;
+        MoveSpeed = 250.0F;
+        JumpForce = 8.0F;
+        DoubleJumpForce = 10.0F;
+        SlideSpeed = 425.0F;
         SlideDuration = 0.5F;
     }
 
     private void FixedUpdate()
     {
-        var jumping = false;
         var groundHitTest = Physics2D.OverlapCapsuleAll(
-            RigidBody.position + (Vector2.down * 0.01F),
+            RigidBody.position + (Vector2.down * 0.01F) + Collider.offset,
             Collider.size * new Vector2(0.9F, 1.0F) * transform.localScale,
             Collider.direction,
             0F);
@@ -90,26 +144,35 @@ public class Player : MonoBehaviour
             {
                 // Landed, add any logic here
                 HasDoubleJumped = false;
+                IsSlideJumping = false;
             }
             IsGrounded = true;
         }
         var y = RigidBody.velocity.y;
         if (WantsToJump && CanJump)
         {
+            if (IsSliding)
+            {
+                IsSlideJumping = true;
+            }
             StopSliding();
             WantsToJump = false;
             y = !IsGrounded
                 ? DoubleJumpForce
                 : JumpForce;
-            jumping = true;
+            Animator.SetTrigger("Jumping");
             if (!IsGrounded)
             {
                 HasDoubleJumped = true;
             }
         }
-        Animator.SetBool("Jumping", jumping);
-        var lateralSpeed = IsSliding ? SlideSpeed : MoveSpeed;
-        RigidBody.velocity = new(DesiredMove * Time.fixedDeltaTime * lateralSpeed, y);
+        var lateralSpeed = (IsSliding || IsSlideJumping) ? SlideSpeed : MoveSpeed;
+        var moveToApply = !IsSliding
+            ? DesiredMove
+            : FacingLeft
+                ? -1.0F
+                : 1.0F;
+        RigidBody.velocity = new(moveToApply * Time.fixedDeltaTime * lateralSpeed, y);
         if (IsSliding && (SlideStartTime + SlideDuration) <= Time.time)
         {
             StopSliding();
@@ -121,13 +184,18 @@ public class Player : MonoBehaviour
     {
         DesiredMove = Input.GetAxis("Horizontal");
         Animator.SetBool("Running", DesiredMove != 0.0F);
-        if (DesiredMove < 0.0F)
+        if (!IsSliding)
         {
-            Sprite.flipX = true;
-        }
-        if (DesiredMove > 0.0F)
-        {
-            Sprite.flipX = false;
+            if (DesiredMove < 0.0F)
+            {
+                Sprite.flipX = true;
+                FacingLeft = true;
+            }
+            if (DesiredMove > 0.0F)
+            {
+                Sprite.flipX = false;
+                FacingLeft = false;
+            }
         }
         if (Input.GetButtonDown("Jump") && CanJump)
         {
@@ -139,10 +207,14 @@ public class Player : MonoBehaviour
             SlideStartTime = Time.time;
             Animator.SetBool("Sliding", true);
         }
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        // if (Input.GetKeyDown(KeyCode.UpArrow))
+        // {
+        //     var beat = RhythmManager.GetInstance().GetBeatAccuracy(0.9F, 0.8F);
+        //     Debug.Log(beat.ToString());
+        // }
+        if (Input.GetButtonDown("Attack") && CanAttack)
         {
-            var beat = RhythmManager.GetInstance().GetBeatAccuracy(0.9F, 0.8F);
-            Debug.Log(beat.ToString());
+            Attack();
         }
     }
 
@@ -151,4 +223,99 @@ public class Player : MonoBehaviour
         IsSliding = false;
         Animator.SetBool("Sliding", false);
     }
+
+    void Attack()
+    {
+        // var anim = StandardComboCounter == 0
+        //     ? "Attack1"
+        //     : StandardComboCounter == 1 && (LastAttackTime + 0.75F) < Time.time
+        //         ? "Attack2"
+        //         : "Attack1";
+        // LastAttackTime = Time.time;
+        // Animator.SetTrigger(anim);
+        // StandardComboCounter++;
+        var anim = BasicAttackCombo.PlayAction();
+        Animator.SetTrigger(anim.Name);
+        IsAttacking = true;
+        ActiveAttack = anim;
+    }
+
+    public void CheckForHit()
+    {
+        if (ActiveAttack == null)
+        {
+            return;
+        }
+        var start = new Vector2(transform.position.x, transform.position.y)
+            + (ActiveAttack.AttackCenter * (FacingLeft ? -1.0F : 1.0F));
+        var hits = Physics2D.OverlapBoxAll(start, ActiveAttack.AttackExtents, 0.0F);
+        foreach (var hit in hits)
+        {
+            var healthComponent = hit.GetComponent<Health>();
+            if (healthComponent != null)
+            {
+                healthComponent.Damage(1);
+            }
+        }
+    }
+
+    public void AttackFinish()
+    {
+        IsAttacking = false;
+        ActiveAttack = null;
+    }
+}
+
+class ComboHelper
+{
+    public List<ComboAction> Combos;
+
+    private int ComboCounter;
+
+    private float LastTime;
+
+    public ComboAction PlayAction()
+    {
+        // Check if the Combo Counter needs to be reset
+        if (ComboCounter >= Combos.Count
+            || (ComboCounter > 0 && LastTime + Combos[ComboCounter].TimeWindow < Time.time))
+        {
+            ComboCounter = 0;
+        }
+        var comboStepToUse = Combos[ComboCounter];
+        var accuracy = RhythmManager.GetInstance().GetBeatAccuracy(comboStepToUse.PerfectAccuracy, comboStepToUse.AcceptableAccuracy);
+        if (comboStepToUse.RequiresPerfectTiming && accuracy != BeatAccuracy.Perfect)
+        {
+            ComboCounter = 0;
+            comboStepToUse = Combos[ComboCounter];
+        }
+        else if (accuracy != BeatAccuracy.Miss)
+        {
+            ComboCounter++;
+        }
+        else
+        {
+            ComboCounter = 0;
+            comboStepToUse = Combos[ComboCounter];
+        }
+        LastTime = Time.time;
+        return comboStepToUse;
+    }
+}
+
+class ComboAction
+{
+    public string Name;
+
+    public bool RequiresPerfectTiming;
+
+    public float TimeWindow;
+
+    public float PerfectAccuracy;
+
+    public float AcceptableAccuracy;
+
+    public Vector2 AttackCenter;
+
+    public Vector2 AttackExtents;
 }

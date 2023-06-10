@@ -27,9 +27,15 @@ public class RhythmManager : MonoBehaviour
         _instance = this;
     }
 
+    void Awake()
+    {
+        _instance = this;
+    }
+
     // Update is called once per frame
     void Update()
     {
+        _instance = this;
         var acc = GetBeatScalar();
         acc = acc*acc;
         Sprite.transform.localScale = new Vector3(acc, acc, acc);

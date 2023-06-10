@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
     private SpriteRenderer Sprite;
 
     private Animator Animator;
+
+    private Health Health;
     #endregion
 
     #region Stats
@@ -86,26 +88,29 @@ public class Player : MonoBehaviour
                 TimeWindow = 0.0F,
                 AttackCenter = new Vector2(1, 0),
                 AttackExtents = new Vector2(0.5F, 2.0F),
+                Damage = 1,
             },
             new()
             {
                 Name = "Attack2",
                 RequiresPerfectTiming = false,
                 PerfectAccuracy = 0.8F,
-                AcceptableAccuracy = 0.4F,
+                AcceptableAccuracy = 0.25F,
                 TimeWindow = 1F,
                 AttackCenter = new Vector2(1, 0),
                 AttackExtents = new Vector2(0.5F, 2.0F),
+                Damage = 2,
             },
             new()
             {
                 Name = "Attack3",
                 RequiresPerfectTiming = true,
-                PerfectAccuracy = 0.7F,
-                AcceptableAccuracy = 0.5F,
+                PerfectAccuracy = 0.65F,
+                AcceptableAccuracy = 0.4F,
                 TimeWindow = 1F,
                 AttackCenter = new Vector2(0, 0),
                 AttackExtents = new Vector2(2.5F, 1F),
+                Damage = 3,
             }
         }
     };
@@ -118,6 +123,7 @@ public class Player : MonoBehaviour
         Collider = GetComponent<CapsuleCollider2D>();
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
+        Health = GetComponent<Health>();
         // Set default values
         MoveSpeed = 250.0F;
         JumpForce = 8.0F;
@@ -182,9 +188,10 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(Health.CurrentHealth);
         DesiredMove = Input.GetAxis("Horizontal");
         Animator.SetBool("Running", DesiredMove != 0.0F);
-        if (!IsSliding)
+        if (!IsSliding && !IsAttacking)
         {
             if (DesiredMove < 0.0F)
             {
@@ -226,14 +233,6 @@ public class Player : MonoBehaviour
 
     void Attack()
     {
-        // var anim = StandardComboCounter == 0
-        //     ? "Attack1"
-        //     : StandardComboCounter == 1 && (LastAttackTime + 0.75F) < Time.time
-        //         ? "Attack2"
-        //         : "Attack1";
-        // LastAttackTime = Time.time;
-        // Animator.SetTrigger(anim);
-        // StandardComboCounter++;
         var anim = BasicAttackCombo.PlayAction();
         Animator.SetTrigger(anim.Name);
         IsAttacking = true;
@@ -248,14 +247,11 @@ public class Player : MonoBehaviour
         }
         var start = new Vector2(transform.position.x, transform.position.y)
             + (ActiveAttack.AttackCenter * (FacingLeft ? -1.0F : 1.0F));
-        var hits = Physics2D.OverlapBoxAll(start, ActiveAttack.AttackExtents, 0.0F);
+        var hits = Extensions.CheckForHits(start, ActiveAttack.AttackExtents, ignores: new[] { gameObject });
         foreach (var hit in hits)
         {
             var healthComponent = hit.GetComponent<Health>();
-            if (healthComponent != null)
-            {
-                healthComponent.Damage(1);
-            }
+            healthComponent.Damage(ActiveAttack.Damage);
         }
     }
 
@@ -318,4 +314,6 @@ class ComboAction
     public Vector2 AttackCenter;
 
     public Vector2 AttackExtents;
+
+    public int Damage;
 }

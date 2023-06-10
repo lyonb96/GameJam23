@@ -10,7 +10,7 @@ public class Health : MonoBehaviour
 
     public bool KillOnDeath;
 
-    private int CurrentHealth;
+    public int CurrentHealth { get; private set; }
 
     public UnityEvent OnDeath;
 

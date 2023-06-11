@@ -143,7 +143,7 @@ public class Player : MonoBehaviour
             Collider.size * new Vector2(0.95F, 1.0F) * transform.localScale,
             Collider.direction,
             0F);
-        var ground = groundHitTest.FirstOrDefault(x => x.gameObject != gameObject);
+        var ground = groundHitTest.FirstOrDefault(x => x.gameObject != gameObject && !x.isTrigger);
         var antiStick = false;
         if (ground == null)
         {

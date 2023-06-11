@@ -167,6 +167,7 @@ public class LevelScript
                     script.Text = showSpeechBox.Text;
                     script.Speaker = showSpeechBox.Speaker;
                     yield return script.StartWriting();
+                    index++;
                     continue;
             }
         }

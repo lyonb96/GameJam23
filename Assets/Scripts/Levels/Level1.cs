@@ -23,6 +23,9 @@ public class Level1 : MonoBehaviour
         var player = FindObjectOfType<Player>();
         var heart = FindObjectOfType<HeartFollower>();
         var canvas = FindObjectOfType<Canvas>().gameObject;
+        var doorSlot = GameObject.Find("DoorSlot");
+        var music = FindObjectOfType<AudioSource>();
+        var startVolume = music.volume;
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
             .Do(() => player.PauseMovement())
             .WriteText("Where is it?", OpeningDialogText)
@@ -37,12 +40,35 @@ public class Level1 : MonoBehaviour
                 Destroy(OpeningDialogText);
                 Destroy(Overlay);
             })
+            .Do(() => RhythmManager.GetInstance().PlayOnBeat(music))
+            .Do(() => player.ResumeMovement())
+            .DoCoroutine(Extensions.Fade(1.0F, 0.0F, 1.0F, volScale => music.volume = startVolume * volScale))
+            .WaitForTrigger("Tutorial1")
+            .Do(() => Debug.Log("Hit the first trigger"))
+            .WaitForTrigger("Tutorial2")
+            .Do(() => Debug.Log("Hit the second one!"))
+            .WaitForTrigger("MeetHeart")
+            .Do(() => player.PauseMovement())
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "I've been waiting for someone to show up...")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "What is this place?")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "Many people call it many things", "But ultimately it's a place for lost hearts")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "And lost people, it would seem...")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "Sometimes!", "But it's very rare, especially since...", "...well anyway, I can help guide you!")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "Guide me?", "I suppose any help is better than none.")
+            .Do(() => heart.Follow = true)
+            .Do(() => player.ResumeMovement())
+            .WaitForTrigger("HeartExplainDoor")
+            .Do(() => player.PauseMovement())
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1),
+                "This is a [Insert Cool Gate Name Here]",
+                "These gates enable us to traverse the levels of this plane",
+                "This one seems dormant...")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "How do we pass through it?")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "I think I know how to power it up", "Stand back... just in case.")
+            .Do(() => heart.OverrideFocus(doorSlot))
             .WaitForSeconds(1.0F)
             .Do(() => player.ResumeMovement())
-            .WaitForSeconds(1.0F)
-            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, "Hello there...")
-            .WaitForTrigger("Tutorial1")
-            .Do(() => Debug.Log("Hit the first trigger"));
+            .Do(() => Debug.Log("Open the gate, fade to black, load next scene..."));
         StartCoroutine(levelScript.Execute());
     }
 
@@ -53,5 +79,10 @@ public class Level1 : MonoBehaviour
         {
             levelScript.Continue();
         }
+    }
+
+    public void Checkpoint(string name)
+    {
+        levelScript.Trigger(name);
     }
 }

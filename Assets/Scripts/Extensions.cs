@@ -166,6 +166,7 @@ public class LevelScript
                     var script = bubble.GetComponentInChildren<SpeechBubble>();
                     script.Text = showSpeechBox.Text;
                     script.Speaker = showSpeechBox.Speaker;
+                    script.Offset = showSpeechBox.Offset;
                     yield return script.StartWriting();
                     index++;
                     continue;
@@ -180,7 +181,10 @@ public class LevelScript
 
     public void Trigger(string name)
     {
-        Triggers.Add(name);
+        if (!Triggers.Contains(name))
+        {
+            Triggers.Add(name);
+        }
     }
 
     public LevelScript WriteText(string text, TextMeshProUGUI textBox)
@@ -223,13 +227,14 @@ public class LevelScript
         return this;
     }
 
-    public LevelScript ShowSpeechBox(GameObject prefab, GameObject speaker, string text)
+    public LevelScript ShowSpeechBox(GameObject prefab, GameObject speaker, Vector2 offset, params string[] text)
     {
         events.Add(new ShowSpeechBox
         {
             Prefab = prefab,
             Text = text,
             Speaker = speaker,
+            Offset = offset,
         });
         return this;
     }
@@ -267,11 +272,13 @@ public class WaitForTrigger : ScriptEvent
 
 public class ShowSpeechBox : ScriptEvent
 {
-    public string Text;
+    public string[] Text;
 
     public GameObject Speaker;
 
     public GameObject Prefab;
+
+    public Vector2 Offset;
 }
 
 public class WaitForSecondsEvent : ScriptEvent

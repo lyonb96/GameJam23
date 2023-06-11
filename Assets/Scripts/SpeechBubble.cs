@@ -6,9 +6,11 @@ using UnityEngine.UI;
 
 public class SpeechBubble : MonoBehaviour
 {
-    public string Text;
+    public string[] Text;
 
     public GameObject Speaker;
+
+    public Vector2 Offset;
 
     public bool Continued;
 
@@ -26,24 +28,25 @@ public class SpeechBubble : MonoBehaviour
         {
             Continued = true;
         }
-        var position = Camera.main.WorldToScreenPoint(Speaker.transform.position);
-        // var image = GetComponentInChildren<Image>();
-        var tf = transform as RectTransform;
-        tf.localPosition = position.With(z: tf.localPosition.z);
+        transform.position = Speaker.transform.position + Offset.Expand(0.0F);
     }
 
     public IEnumerator StartWriting()
     {
         var textBox = GetComponentInChildren<TextMeshProUGUI>();
-        yield return Extensions.WriteText(
-            Text,
-            t => textBox.text = t,
-            startDelay: 0,
-            endDelay: 0,
-            onComplete: OnComplete);
-        while (!Continued)
+        foreach (var text in Text)
         {
-            yield return new WaitForSeconds(0.1F);
+            yield return Extensions.WriteText(
+                text,
+                t => textBox.text = t,
+                startDelay: 0,
+                endDelay: 0,
+                onComplete: OnComplete);
+            while (!Continued)
+            {
+                yield return new WaitForSeconds(0.1F);
+            }
+            Continued = false;
         }
         Destroy(gameObject);
     }

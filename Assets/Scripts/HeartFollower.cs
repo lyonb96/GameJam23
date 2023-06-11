@@ -10,6 +10,8 @@ public class HeartFollower : MonoBehaviour
 
     private Player Player;
 
+    private GameObject Focus;
+
     private void Awake()
     {
         Player = FindObjectOfType<Player>();
@@ -27,8 +29,22 @@ public class HeartFollower : MonoBehaviour
         {
             offset = offset.With(x: offset.x * 2.0F);
         }
-        var targetPos = Player.transform.position.Truncate() + offset;
+        var toFollow = Focus;
+        if (toFollow == null)
+        {
+            toFollow = Player.gameObject;
+        }
+        else
+        {
+            offset = Vector2.zero;
+        }
+        var targetPos = toFollow.transform.position.Truncate() + offset;
         var currentPos = transform.position.Truncate();
         transform.position = Vector2.Lerp(currentPos, targetPos, Time.deltaTime * 15.0F).Expand(transform.position.z);
+    }
+
+    public void OverrideFocus(GameObject focus)
+    {
+        Focus = focus;
     }
 }

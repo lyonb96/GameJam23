@@ -67,5 +67,11 @@ public class RhythmManager : MonoBehaviour
         return BeatAccuracy.Miss;
     }
 
+    public void PlayOnBeat(AudioSource audio)
+    {
+        var nextBeat = TimeBetweenBeats - (Time.time % TimeBetweenBeats);
+        audio.PlayDelayed(nextBeat);
+    }
+
     public static RhythmManager GetInstance() => _instance;
 }

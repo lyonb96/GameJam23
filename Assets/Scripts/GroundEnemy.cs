@@ -43,7 +43,7 @@ public class GroundEnemy : MonoBehaviour
 
     private CooldownTimer DamageTimer = new()
     {
-        Duration = 0.5F,
+        Duration = 3.0F,
     };
 
     // Start is called before the first frame update

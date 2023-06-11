@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Unity.VisualScripting;
-using UnityEngine.SceneManagement;
 
 public class Level1 : MonoBehaviour
 {
@@ -14,6 +11,8 @@ public class Level1 : MonoBehaviour
     private LevelScript levelScript;
 
     public GameObject SpeechBubblePrefab;
+
+    public GameObject OverlayPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +25,7 @@ public class Level1 : MonoBehaviour
         var doorSlot = GameObject.Find("DoorSlot");
         var music = FindObjectOfType<AudioSource>();
         var startVolume = music.volume;
+        // var door = FindObjectOfType<Door>();
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
             .Do(() => player.PauseMovement())
             .WriteText("Where is it?", OpeningDialogText)
@@ -49,26 +49,32 @@ public class Level1 : MonoBehaviour
             .Do(() => Debug.Log("Hit the second one!"))
             .WaitForTrigger("MeetHeart")
             .Do(() => player.PauseMovement())
-            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "I've been waiting for someone to show up...")
-            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "What is this place?")
-            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "Many people call it many things", "But ultimately it's a place for lost hearts")
-            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "And lost people, it would seem...")
-            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "Sometimes!", "But it's very rare, especially since...", "...well anyway, I can help guide you!")
-            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "Guide me?", "I suppose any help is better than none.")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "I've been waiting for someone to show up...")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "What is this place?")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "Many people call it many things", "But ultimately it's a place for lost hearts")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "And lost people, it would seem...")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "Sometimes!", "But it's very rare, especially since...", "...well anyway, I can help guide you!")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "Guide me?", "I suppose any help is better than none.")
             .Do(() => heart.Follow = true)
             .Do(() => player.ResumeMovement())
             .WaitForTrigger("HeartExplainDoor")
             .Do(() => player.PauseMovement())
-            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1),
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor,
                 "This is a [Insert Cool Gate Name Here]",
                 "These gates enable us to traverse the levels of this plane",
                 "This one seems dormant...")
-            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), "How do we pass through it?")
-            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 1), "I think I know how to power it up", "Stand back... just in case.")
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "How do we pass through it?")
+            .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "I think I know how to power it up", "Stand back... just in case.")
             .Do(() => heart.OverrideFocus(doorSlot))
             .WaitForSeconds(1.0F)
+            // .Do(() => door.Open())
             .Do(() => player.ResumeMovement())
-            .Do(() => Debug.Log("Open the gate, fade to black, load next scene..."));
+            .WaitForTrigger("AtDoor")
+            .Do(() => player.PauseMovement())
+            .FadeToBlack(OverlayPrefab)
+            .DoCoroutine(Extensions.Fade(1.0F, 1.0F, 0.0F, volScale => music.volume = startVolume * volScale))
+            .LoadLevel("Level2")
+            ;
         StartCoroutine(levelScript.Execute());
     }
 

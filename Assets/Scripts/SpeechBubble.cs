@@ -16,6 +16,8 @@ public class SpeechBubble : MonoBehaviour
 
     public bool Waiting;
 
+    public Color Color;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +26,7 @@ public class SpeechBubble : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Waiting && !Continued && Input.GetButtonDown("Continue"))
+        if (Waiting && !Continued && Input.GetButtonDown("Attack"))
         {
             Continued = true;
         }
@@ -34,6 +36,7 @@ public class SpeechBubble : MonoBehaviour
     public IEnumerator StartWriting()
     {
         var textBox = GetComponentInChildren<TextMeshProUGUI>();
+        textBox.color = Color;
         foreach (var text in Text)
         {
             yield return Extensions.WriteText(
@@ -41,6 +44,7 @@ public class SpeechBubble : MonoBehaviour
                 t => textBox.text = t,
                 startDelay: 0,
                 endDelay: 0,
+                lettersPerSec: 25,
                 onComplete: OnComplete);
             while (!Continued)
             {

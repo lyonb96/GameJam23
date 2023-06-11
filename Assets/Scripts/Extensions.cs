@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public static class Extensions
 {
@@ -76,6 +77,8 @@ public static class Extensions
             yield return null;
         }
     }
+
+    public static Color HeartTextColor = new(245.0F / 255.0F, 144.0F / 255.0F, 154.0F / 255.0F, 1.0F);
 }
 
 public class CooldownTimer
@@ -167,7 +170,28 @@ public class LevelScript
                     script.Text = showSpeechBox.Text;
                     script.Speaker = showSpeechBox.Speaker;
                     script.Offset = showSpeechBox.Offset;
+                    script.Color = showSpeechBox.TextColor;
                     yield return script.StartWriting();
+                    index++;
+                    continue;
+                case FadeToBlack fadeToBlack:
+                    var pos = Camera.main.transform.position;
+                    var rotation = Camera.main.transform.rotation;
+                    var overlay = Instantiate(fadeToBlack.Prefab, pos, rotation, Canvas.transform) as GameObject;
+                    var fadeScript = overlay.GetComponent<Fader>();
+                    yield return fadeScript.Fade(0.0F, 1.0F, fadeToBlack.Seconds);
+                    index++;
+                    continue;
+                case FadeFromBlack fadeFromBlack:
+                    var pos2 = Camera.main.transform.position;
+                    var rotation2 = Camera.main.transform.rotation;
+                    var overlay2 = Instantiate(fadeFromBlack.Prefab, pos2, rotation2, Canvas.transform) as GameObject;
+                    var fadeScript2 = overlay2.GetComponent<Fader>();
+                    yield return fadeScript2.Fade(1.0F, 0.0F, fadeFromBlack.Seconds, true);
+                    index++;
+                    continue;
+                case LoadLevel level:
+                    SceneManager.LoadScene(level.Level);
                     index++;
                     continue;
             }
@@ -227,7 +251,12 @@ public class LevelScript
         return this;
     }
 
-    public LevelScript ShowSpeechBox(GameObject prefab, GameObject speaker, Vector2 offset, params string[] text)
+    public LevelScript ShowSpeechBox(
+        GameObject prefab,
+        GameObject speaker,
+        Vector2 offset,
+        Color textColor,
+        params string[] text)
     {
         events.Add(new ShowSpeechBox
         {
@@ -235,7 +264,34 @@ public class LevelScript
             Text = text,
             Speaker = speaker,
             Offset = offset,
+            TextColor = textColor,
         });
+        return this;
+    }
+
+    public LevelScript FadeToBlack(GameObject prefab, float seconds = 1.0F)
+    {
+        events.Add(new FadeToBlack
+        {
+            Prefab = prefab,
+            Seconds = seconds,
+        });
+        return this;
+    }
+
+    public LevelScript FadeFromBlack(GameObject prefab, float seconds = 1.0F)
+    {
+        events.Add(new FadeFromBlack
+        {
+            Prefab = prefab,
+            Seconds = seconds,
+        });
+        return this;
+    }
+
+    public LevelScript LoadLevel(string level)
+    {
+        events.Add(new LoadLevel { Level = level });
         return this;
     }
 }
@@ -279,9 +335,30 @@ public class ShowSpeechBox : ScriptEvent
     public GameObject Prefab;
 
     public Vector2 Offset;
+
+    public Color TextColor;
 }
 
 public class WaitForSecondsEvent : ScriptEvent
 {
     public float Seconds;
+}
+
+public class FadeToBlack : ScriptEvent
+{
+    public GameObject Prefab;
+
+    public float Seconds;
+}
+
+public class FadeFromBlack : ScriptEvent
+{
+    public GameObject Prefab;
+
+    public float Seconds;
+}
+
+public class LoadLevel : ScriptEvent
+{
+    public string Level;
 }

@@ -45,11 +45,13 @@ public class Player : MonoBehaviour
 
     private bool HasDoubleJumped;
 
+    private bool IsJumping;
+
     private State CurrentState;
 
     private bool IsGrounded;
 
-    private bool CanJump => (IsGrounded || (!IsGrounded && !HasDoubleJumped)) && !IsAttacking;
+    private bool CanJump => (IsGrounded || (!IsGrounded && !HasDoubleJumped)) && !IsAttacking && !PausedMovement;
 
     private float SlideStartTime;
 
@@ -57,21 +59,19 @@ public class Player : MonoBehaviour
 
     private bool IsSlideJumping;
 
-    private bool CanSlide => IsGrounded && !IsSliding && DesiredMove != 0.0F && !IsAttacking;
+    private bool CanSlide => IsGrounded && !IsSliding && DesiredMove != 0.0F && !IsAttacking && !PausedMovement;
 
     private bool FacingLeft;
 
     private Vector3 CurrentCheckpoint;
+
+    public bool IsRunningRight => DesiredMove > 0.0F;
+
+    private bool PausedMovement;
     #endregion
 
     #region Internal attack tracking
-    private float LastAttackTime;
-
-    private int StandardComboCounter;
-
-    private int SlideJumpComboCounter;
-
-    private bool CanAttack => !IsSliding && !IsAttacking;
+    private bool CanAttack => !IsSliding && !IsAttacking && !PausedMovement;
 
     private bool IsAttacking;
 
@@ -182,11 +182,13 @@ public class Player : MonoBehaviour
                 ? DoubleJumpForce
                 : JumpForce;
             Animator.SetTrigger("Jumping");
+            IsJumping = true;
             if (!IsGrounded)
             {
                 HasDoubleJumped = true;
             }
         }
+        Animator.SetBool("Falling", !IsGrounded && !IsJumping && !IsAttacking);
         var lateralSpeed = (IsSliding || IsSlideJumping) ? SlideSpeed : MoveSpeed;
         var moveToApply = !IsSliding
             ? DesiredMove
@@ -208,6 +210,10 @@ public class Player : MonoBehaviour
     void Update()
     {
         DesiredMove = Input.GetAxis("Horizontal");
+        if (PausedMovement)
+        {
+            DesiredMove = 0.0F;
+        }
         Animator.SetBool("Running", DesiredMove != 0.0F);
         if (!IsSliding && !IsAttacking)
         {
@@ -269,10 +275,26 @@ public class Player : MonoBehaviour
 
     void Attack()
     {
-        var anim = BasicAttackCombo.PlayAction();
-        Animator.SetTrigger(anim.Name);
+        if (IsGrounded)
+        {
+            var anim = BasicAttackCombo.PlayAction();
+            Animator.SetTrigger(anim.Name);
+            ActiveAttack = anim;
+        }
+        else
+        {
+            ActiveAttack = new()
+            {
+                Name = "AirAttack1",
+                Damage = 2,
+                AttackCenter = new Vector2(),
+                AttackExtents = new Vector2(2.5F, 1.0F),
+                TimeWindow = 0.0F,
+            };
+            Animator.SetTrigger(ActiveAttack.Name);
+        }
+        Animator.SetBool("Falling", false);
         IsAttacking = true;
-        ActiveAttack = anim;
     }
 
     public void CheckForHit()
@@ -297,6 +319,11 @@ public class Player : MonoBehaviour
         ActiveAttack = null;
     }
 
+    public void JumpFinished()
+    {
+        IsJumping = false;
+    }
+
     public void SetCheckpoint(Vector3 checkpoint)
     {
         CurrentCheckpoint = checkpoint;
@@ -311,6 +338,16 @@ public class Player : MonoBehaviour
             // Reset the level
         }
         StartCoroutine(WaitForRespawn());
+    }
+
+    public void PauseMovement()
+    {
+        PausedMovement = true;
+    }
+
+    public void ResumeMovement()
+    {
+        PausedMovement = false;
     }
 
     private IEnumerator WaitForRespawn()

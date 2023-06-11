@@ -22,7 +22,12 @@ public class HeartFollower : MonoBehaviour
         {
             return;
         }
-        var targetPos = Player.transform.position.Truncate() + Offset;
+        var offset = Offset;
+        if (Player.IsRunningRight)
+        {
+            offset = offset.With(x: offset.x * 2.0F);
+        }
+        var targetPos = Player.transform.position.Truncate() + offset;
         var currentPos = transform.position.Truncate();
         transform.position = Vector2.Lerp(currentPos, targetPos, Time.deltaTime * 15.0F).Expand(transform.position.z);
     }

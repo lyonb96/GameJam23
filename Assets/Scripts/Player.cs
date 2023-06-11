@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum State
-{
-    Idle,
-    Running,
-    Attack,
-}
 
 public class Player : MonoBehaviour
 {
@@ -22,6 +16,8 @@ public class Player : MonoBehaviour
     private Animator Animator;
 
     private Health Health;
+
+    public GameObject DeathScreen;
     #endregion
 
     #region Stats
@@ -47,11 +43,11 @@ public class Player : MonoBehaviour
 
     private bool IsJumping;
 
-    private State CurrentState;
-
     private bool IsGrounded;
 
-    private bool CanJump => (IsGrounded || (!IsGrounded && !HasDoubleJumped)) && !IsAttacking && !PausedMovement;
+    private bool CanJump => (IsGrounded || (!IsGrounded && !HasDoubleJumped && CanDoubleJump)) && !IsAttacking && !PausedMovement && RigidBody.simulated;
+
+    private bool CanDoubleJump;
 
     private float SlideStartTime;
 
@@ -59,7 +55,7 @@ public class Player : MonoBehaviour
 
     private bool IsSlideJumping;
 
-    private bool CanSlide => IsGrounded && !IsSliding && DesiredMove != 0.0F && !IsAttacking && !PausedMovement;
+    private bool CanSlide => IsGrounded && !IsSliding && DesiredMove != 0.0F && !IsAttacking && !PausedMovement && RigidBody.simulated;
 
     private bool FacingLeft;
 
@@ -68,6 +64,8 @@ public class Player : MonoBehaviour
     public bool IsRunningRight => DesiredMove > 0.0F;
 
     private bool PausedMovement;
+
+    private bool WaitingForRespawn;
     #endregion
 
     #region Internal attack tracking
@@ -127,6 +125,8 @@ public class Player : MonoBehaviour
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
         Health = GetComponent<Health>();
+        Health.OnDamage.AddListener(OnDamage);
+        Health.OnDeath.AddListener(OnDeath);
         // Set default values
         MoveSpeed = 250.0F;
         JumpForce = 10.0F;
@@ -167,6 +167,7 @@ public class Player : MonoBehaviour
                 HasDoubleJumped = false;
                 IsSlideJumping = false;
             }
+            CanDoubleJump = false;
             IsGrounded = true;
         }
         var y = RigidBody.velocity.y;
@@ -331,13 +332,16 @@ public class Player : MonoBehaviour
 
     public void FellOutOfWorld()
     {
+        if (WaitingForRespawn)
+        {
+            return;
+        }
         RigidBody.simulated = false;
         Health.Damage(1);
-        if (Health.CurrentHealth == 0)
+        if (Health.CurrentHealth > 0)
         {
-            // Reset the level
+            StartCoroutine(WaitForRespawn());
         }
-        StartCoroutine(WaitForRespawn());
     }
 
     public void PauseMovement()
@@ -350,11 +354,35 @@ public class Player : MonoBehaviour
         PausedMovement = false;
     }
 
+    public void RefundJump()
+    {
+        CanDoubleJump = true;
+        HasDoubleJumped = false;
+    }
+
     private IEnumerator WaitForRespawn()
     {
+        WaitingForRespawn = true;
         yield return new WaitForSeconds(2);
         transform.position = CurrentCheckpoint;
         RigidBody.simulated = true;
+        WaitingForRespawn = false;
+    }
+
+    private void OnDamage()
+    {
+        // Play damage sound?
+    }
+
+    private void OnDeath()
+    {
+        PauseMovement();
+        Animator.SetTrigger("Death");
+        var canvas = FindObjectOfType<Canvas>();
+        Instantiate(DeathScreen, canvas.transform);
+        // var script = deathscreen.GetComponent<DeathScreenScript>();
+        // var currentScene = SceneManager.GetActiveScene().name;
+        // SceneManager.LoadScene(currentScene);
     }
 }
 

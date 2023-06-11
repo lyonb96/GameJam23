@@ -87,6 +87,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 260f328f850c19946bf143ac4961f09b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DeathScreen: {fileID: 46385377940110599, guid: c6d06cd0d168002468cb61387347ec7f, type: 3}
   MoveSpeed: 150
   SlideSpeed: 0
   SlideDuration: 0

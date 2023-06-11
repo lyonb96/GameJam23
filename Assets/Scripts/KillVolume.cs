@@ -8,7 +8,7 @@ public class KillVolume : MonoBehaviour
     {
         var health = collision.GetComponent<Health>();
         var player = collision.GetComponent<Player>();
-        if (health != null && player != null)
+        if (health != null && player == null)
         {
             health.Damage(100000);
         }

@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 7157528630195219344}
   - component: {fileID: 7157528630195219359}
   - component: {fileID: 7157528630195219358}
+  - component: {fileID: 7415345032868804062}
+  - component: {fileID: 7418995430284052319}
+  - component: {fileID: -2313955244738513506}
   m_Layer: 0
   m_Name: Bat
   m_TagString: Untagged
@@ -26,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7157528630195219357}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 96.18, y: 0.23, z: 0.21611488}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106,3 +109,55 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7415345032868804062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7157528630195219357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ef5ec5ab9d327843be8644bf4a2fded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 3
+  KillOnDeath: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamage:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &7418995430284052319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7157528630195219357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bebe21e1281f0ae46a2bed553478c022, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AggroRange: 12
+  StrafeSpeed: 3
+  Projectile: {fileID: 3575757069284379570, guid: fb947ac923605634697a88b7ead3b633, type: 3}
+  StayStill: 0
+--- !u!70 &-2313955244738513506
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7157528630195219357}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.045164034, y: 0.0061588045}
+  m_Size: {x: 0.36600703, y: 0.2595905}
+  m_Direction: 1

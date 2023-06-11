@@ -30,6 +30,10 @@ public class Health : MonoBehaviour
 
     public void Damage(int damage)
     {
+        if (CurrentHealth <= 0)
+        {
+            return;
+        }
         CurrentHealth -= damage;
         OnDamage.Invoke();
         if (CurrentHealth <= 0)

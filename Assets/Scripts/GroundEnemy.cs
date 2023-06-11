@@ -5,6 +5,7 @@ public class GroundEnemy : MonoBehaviour
     private Rigidbody2D RigidBody;
     private Health Health;
     private Animator Animator;
+    private SpriteRenderer Sprite;
 
     private Player Player;
 
@@ -23,6 +24,8 @@ public class GroundEnemy : MonoBehaviour
     private bool AttackLeft;
 
     private float AttackStartX;
+
+    private float AttackStartTime;
 
     private float AttackEndX;
 
@@ -49,6 +52,7 @@ public class GroundEnemy : MonoBehaviour
         RigidBody = GetComponent<Rigidbody2D>();
         Health = GetComponent<Health>();
         Animator = GetComponent<Animator>();
+        Sprite = GetComponent<SpriteRenderer>();
         Player = FindObjectOfType<Player>();
         Health.OnDeath.AddListener(OnDeath);
     }
@@ -57,6 +61,8 @@ public class GroundEnemy : MonoBehaviour
     {
         RigidBody = GetComponent<Rigidbody2D>();
         Health = GetComponent<Health>();
+        Player = FindObjectOfType<Player>();
+        Sprite = GetComponent<SpriteRenderer>();
         Player = FindObjectOfType<Player>();
         Health.OnDeath.AddListener(OnDeath);
     }
@@ -104,7 +110,8 @@ public class GroundEnemy : MonoBehaviour
                 ? -1.0F
                 : 1.0F;
             if ((AttackLeft && myPos.x < AttackEndX)
-                || (!AttackLeft && myPos.x > AttackEndX))
+                || (!AttackLeft && myPos.x > AttackEndX)
+                || AttackStartTime + 2.0F < Time.time)
             {
                 SetAttacking(false);
             }
@@ -137,6 +144,7 @@ public class GroundEnemy : MonoBehaviour
             {
                 Attack(isLeft);
             }
+            Sprite.flipX = !isLeft;
         }
         Animator.SetBool("Moving", DesiredMove != 0.0F && !Attacking);
     }
@@ -168,6 +176,7 @@ public class GroundEnemy : MonoBehaviour
         SetAttacking(true);
         AttackStartX = transform.position.x;
         AttackEndX = transform.position.x + (left ? -6.0F : 6.0F);
+        AttackStartTime = Time.time;
     }
 
     public void SetAttacking(bool attacking)

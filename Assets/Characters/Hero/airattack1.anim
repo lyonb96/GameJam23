@@ -85,7 +85,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.28333333
+  - time: 0.2
     functionName: AttackFinish
     data: 
     objectReferenceParameter: {fileID: 0}

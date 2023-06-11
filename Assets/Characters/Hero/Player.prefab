@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5440695888637921009}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,7 +95,7 @@ MonoBehaviour:
   DoubleJumpForce: 0
 --- !u!95 &3371639986198837635
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -112,7 +112,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!212 &3371639986198837660
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -180,6 +181,8 @@ MonoBehaviour:
   Offset: {x: 0, y: 1}
   Speed: 10
   VerticalFlatten: 0.5
+  MinX: -1000
+  MaxX: 1000
 --- !u!114 &5440695888637921009
 MonoBehaviour:
   m_ObjectHideFlags: 0

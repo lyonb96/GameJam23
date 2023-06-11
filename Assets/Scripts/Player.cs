@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
         Health = GetComponent<Health>();
         // Set default values
         MoveSpeed = 250.0F;
-        JumpForce = 8.0F;
+        JumpForce = 10.0F;
         DoubleJumpForce = 10.0F;
         SlideSpeed = 425.0F;
         SlideDuration = 0.5F;

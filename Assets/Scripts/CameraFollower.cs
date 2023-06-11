@@ -14,6 +14,10 @@ public class CameraFollower : MonoBehaviour
 
     public float VerticalFlatten = 0.1F;
 
+    public float MinX = -1000.0F;
+
+    public float MaxX = 1000.0F;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,7 +31,10 @@ public class CameraFollower : MonoBehaviour
         {
             return;
         }
-        var targetPos = transform.position.With(y: transform.position.y * VerticalFlatten).Truncate() + Offset;
+        var targetPos = transform.position.With(
+                x: Mathf.Clamp(transform.position.x, MinX, MaxX),
+                y: transform.position.y * VerticalFlatten)
+            .Truncate() + Offset;
         var currentPos = SceneCam.transform.position.Truncate();
         var newPos = Vector2.Lerp(currentPos, targetPos, Time.deltaTime * Speed);
         SceneCam.transform.position = new Vector2(newPos.x, Mathf.Max(0.0F, newPos.y)).Expand(SceneCam.transform.position.z);

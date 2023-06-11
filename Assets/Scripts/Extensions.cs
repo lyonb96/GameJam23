@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -41,6 +42,27 @@ public static class Extensions
             {
                 yield return hit;
             }
+        }
+    }
+
+    public static IEnumerator WriteText(
+        string fullText,
+        Action<string> eachStep,
+        int lettersPerSec = 10,
+        float startDelay = 3.0F,
+        float endDelay = 2.0F,
+        Action onComplete = null)
+    {
+        yield return new WaitForSeconds(startDelay);
+        for (var i = 0; i < fullText.Length; i++)
+        {
+            eachStep(fullText.Substring(0, i));
+            yield return new WaitForSeconds(1.0F / lettersPerSec);
+        }
+        yield return new WaitForSeconds(endDelay);
+        if (onComplete != null)
+        {
+            onComplete();
         }
     }
 }

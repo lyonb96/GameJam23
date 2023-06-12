@@ -29,10 +29,10 @@ public class Level1 : MonoBehaviour
         // var door = FindObjectOfType<Door>();
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
             .Do(() => player.PauseMovement())
-            .WriteText("Where is it?", OpeningDialogText)
+            .WriteText("What just happened?...", OpeningDialogText)
             .WaitForContinue()
             .Do(() => OpeningDialogText.text = "")
-            .WriteText("Any other script here...", OpeningDialogText)
+            .WriteText("Where is it... where is my heart?", OpeningDialogText)
             .WaitForContinue()
             .DoCoroutine(Extensions.Fade(2.0F, 1.0F, 0.0F, opacity => OpeningDialogText.color = OpeningDialogText.color.WithAlpha(opacity)))
             .DoCoroutine(Extensions.Fade(0.5F, 1.0F, 0.0F, opacity => Overlay.color = Overlay.color.WithAlpha(opacity)))

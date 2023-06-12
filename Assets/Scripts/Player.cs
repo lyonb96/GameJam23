@@ -116,6 +116,15 @@ public class Player : MonoBehaviour
     };
     #endregion
 
+    #region Audio
+    public AudioClip Hit1, Hit2, Hit3, Swing, BigSwing, Damage, SlideSound;
+
+    private AudioSource SwingSource;
+    private AudioSource HitSource;
+    private AudioSource DamageSource;
+    private AudioSource SlideSource;
+    #endregion
+
     // Start is called before the first frame update
     void Start()
     {
@@ -125,6 +134,11 @@ public class Player : MonoBehaviour
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
         Health = GetComponent<Health>();
+        var audioSources = GetComponents<AudioSource>();
+        SwingSource = audioSources[0];
+        HitSource = audioSources[1];
+        DamageSource = audioSources[2];
+        SlideSource = audioSources[3];
         Health.OnDamage.AddListener(OnDamage);
         Health.OnDeath.AddListener(OnDeath);
         // Set default values
@@ -242,6 +256,8 @@ public class Player : MonoBehaviour
             }
             else
             {
+                SlideSource.clip = SlideSound;
+                SlideSource.Play();
                 IsSliding = true;
                 SlideStartTime = Time.time;
                 Animator.SetBool("Sliding", true);
@@ -276,11 +292,16 @@ public class Player : MonoBehaviour
 
     void Attack()
     {
+        SwingSource.clip = Swing;
         if (IsGrounded)
         {
             var anim = BasicAttackCombo.PlayAction();
             Animator.SetTrigger(anim.Name);
             ActiveAttack = anim;
+            if (anim.Name == "Attack3")
+            {
+                SwingSource.clip = BigSwing;
+            }
         }
         else
         {
@@ -296,6 +317,7 @@ public class Player : MonoBehaviour
         }
         Animator.SetBool("Falling", false);
         IsAttacking = true;
+        SwingSource.Play();
     }
 
     public void CheckForHit()
@@ -307,10 +329,23 @@ public class Player : MonoBehaviour
         var start = new Vector2(transform.position.x, transform.position.y)
             + (ActiveAttack.AttackCenter * (FacingLeft ? -1.0F : 1.0F));
         var hits = Extensions.CheckForHits(start, ActiveAttack.AttackExtents, ignores: new[] { gameObject });
+        var success = false;
         foreach (var hit in hits)
         {
             var healthComponent = hit.GetComponent<Health>();
             healthComponent.Damage(ActiveAttack.Damage);
+            success = true;
+        }
+        if (success)
+        {
+            HitSource.clip = ActiveAttack.Name switch
+            {
+                "Attack1" => Hit1,
+                "Attack2" => Hit2,
+                "Attack3" => Hit3,
+                _ => Hit1,
+            };
+            HitSource.Play();
         }
     }
 
@@ -372,6 +407,8 @@ public class Player : MonoBehaviour
     private void OnDamage()
     {
         // Play damage sound?
+        HitSource.clip = Damage;
+        HitSource.Play();
     }
 
     private void OnDeath()

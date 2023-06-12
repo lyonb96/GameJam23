@@ -1,8 +1,6 @@
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.VFX;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class Boss : MonoBehaviour
 {
@@ -143,7 +141,7 @@ public class Boss : MonoBehaviour
             var x = Random.Range(minX, maxX);
             var pos = new Vector2(x, 7);
             var meteorIdx = Random.Range(0, 2);
-            var toSpawn = meteorIdx switch { 0 => SmallMeteor, 1 => LargeMeteor };
+            var toSpawn = meteorIdx switch { 0 => SmallMeteor, 1 => LargeMeteor, _ => SmallMeteor };
             var meteor = Instantiate(toSpawn, pos, Quaternion.identity);
             var script = meteor.GetComponent<BossMeteor>();
             var direction = new Vector2(Random.Range(-2.0F, 2.0F), -1.0F);

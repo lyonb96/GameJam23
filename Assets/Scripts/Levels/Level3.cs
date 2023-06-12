@@ -19,9 +19,11 @@ public class Level3 : MonoBehaviour
         var heart = FindObjectOfType<HeartFollower>();
         var camera = FindObjectOfType<CameraFollower>();
         var anchor = GameObject.Find("BossFightAnchor");
+        var title = FindObjectOfType<TitleCard>();
         var deeznuts = Random.Range(0.0F, 1.0F);
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
             .Do(() => player.PauseMovement())
+            .Do(() => title.Display())
             .FadeFromBlack(OverlayPrefab, 1.0F)
             .Do(() => player.ResumeMovement())
             .WaitForTrigger("EnterBossFight")

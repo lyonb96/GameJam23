@@ -29,6 +29,11 @@ public static class Extensions
         return new Vector2(x ?? v.x, y ?? v.y);
     }
 
+    public static Color WithAlpha(this Color c, float a)
+    {
+        return new Color(c.r, c.g, c.b, a);
+    }
+
     public static IEnumerable<Collider2D> CheckForHits(
         Vector2 center,
         Vector2 extent,

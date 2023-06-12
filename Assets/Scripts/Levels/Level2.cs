@@ -50,6 +50,8 @@ public class Level2 : MonoBehaviour
             .Do(() => tooltip.Show("Click LMB to attack... on beat!"))
             .Do(() => player.ResumeMovement())
             .Do(() => firstSlimeScript.enabled = true)
+            .WaitForTrigger("DoubleJumpTip")
+            .Do(() => tooltip.Show("Killing these bats will reset your jump"))
             .WaitForTrigger("FinalDoor")
             .Do(() => player.PauseMovement())
             .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1.0F), Color.white, "There's another gate")

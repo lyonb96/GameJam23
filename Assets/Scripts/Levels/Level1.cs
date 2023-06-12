@@ -69,7 +69,7 @@ public class Level1 : MonoBehaviour
             .WaitForTrigger("HeartExplainDoor")
             .Do(() => player.PauseMovement())
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor,
-                "This is a [Insert Cool Gate Name Here]",
+                "This is a Realm Gate",
                 "These gates enable us to traverse the levels of this plane",
                 "This one seems dormant...")
             .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "How do we pass through it?")

@@ -25,6 +25,9 @@ public class Level1 : MonoBehaviour
         var doorSlot = GameObject.Find("DoorSlot");
         var title = FindObjectOfType<TitleCard>();
         var music = GameObject.Find("LevelMusic").GetComponent<AudioSource>();
+        var camera = FindObjectOfType<CameraFollower>();
+        var focalPoint1 = GameObject.Find("FocalPoint1");
+        var tooltip = FindObjectOfType<TooltipScript>();
         var startVolume = music.volume;
         // var door = FindObjectOfType<Door>();
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
@@ -46,19 +49,23 @@ public class Level1 : MonoBehaviour
             .Do(() => title.Display())
             .DoCoroutine(Extensions.Fade(1.0F, 0.0F, 1.0F, volScale => music.volume = startVolume * volScale))
             .WaitForTrigger("Tutorial1")
-            .Do(() => Debug.Log("Hit the first trigger"))
-            .WaitForTrigger("Tutorial2")
-            .Do(() => Debug.Log("Hit the second one!"))
+            .Do(() => tooltip.Show("Hit space to jump"))
+            .WaitForTrigger("SlideTutorial")
+            .Do(() => tooltip.Show("Try sliding under that pillar with Shift... on beat!"))
             .WaitForTrigger("MeetHeart")
             .Do(() => player.PauseMovement())
+            .Do(() => camera.OverrideFocus(focalPoint1))
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "I've been waiting for someone to show up...")
             .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "What is this place?")
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "Many people call it many things", "But ultimately it's a place for lost hearts")
             .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "And lost people, it would seem...")
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "Sometimes!", "But it's very rare, especially since...", "...well anyway, I can help guide you!")
             .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1), Color.white, "Guide me?", "I suppose any help is better than none.")
+            .Do(() => camera.OverrideFocus(null))
             .Do(() => heart.Follow = true)
             .Do(() => player.ResumeMovement())
+            .WaitForTrigger("SlideJumpTutorial")
+            .Do(() => tooltip.Show("You may need to time your slide jump to clear more distance..."))
             .WaitForTrigger("HeartExplainDoor")
             .Do(() => player.PauseMovement())
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor,

@@ -22,7 +22,7 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        transform.position += (4.0F * Time.deltaTime * Direction).Expand(0.0F);
+        transform.position += (8.0F * Time.deltaTime * Direction).Expand(0.0F);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

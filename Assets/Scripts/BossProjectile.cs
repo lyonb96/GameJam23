@@ -32,7 +32,7 @@ public class BossProjectile : MonoBehaviour
     {
         if (collision.TryGetComponent<Player>(out var _))
         {
-            Debug.Log("Projectile hit the player");
+            collision.GetComponent<Health>().Damage(1);
         }
     }
 }

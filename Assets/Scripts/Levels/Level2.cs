@@ -11,13 +11,14 @@ public class Level2 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var canvas = FindObjectOfType<Canvas>().gameObject;
+        var canvas = GameObject.Find("WorldCanvas");
         var player = FindObjectOfType<Player>();
         var heart = FindObjectOfType<HeartFollower>();
         var firstSlime = GameObject.Find("/FirstSlime");
         var firstSlimeScript = firstSlime.GetComponent<GroundEnemy>();
         firstSlimeScript.enabled = false;
         var doorSlot = GameObject.Find("DoorSlot");
+        // var door = FindObjectOfType<Door>();
         var music = FindObjectOfType<AudioSource>();
         var startVolume = music.volume;
         levelScript = new LevelScript(Instantiate, Destroy, canvas)

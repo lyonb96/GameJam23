@@ -21,7 +21,7 @@ public class Level1 : MonoBehaviour
         Overlay = GameObject.Find("OpeningDialogOverlay").GetComponent<Image>();
         var player = FindObjectOfType<Player>();
         var heart = FindObjectOfType<HeartFollower>();
-        var canvas = FindObjectOfType<Canvas>().gameObject;
+        var canvas = GameObject.Find("WorldCanvas");
         var doorSlot = GameObject.Find("DoorSlot");
         var music = FindObjectOfType<AudioSource>();
         var startVolume = music.volume;
@@ -73,8 +73,7 @@ public class Level1 : MonoBehaviour
             .Do(() => player.PauseMovement())
             .FadeToBlack(OverlayPrefab)
             .DoCoroutine(Extensions.Fade(1.0F, 1.0F, 0.0F, volScale => music.volume = startVolume * volScale))
-            .LoadLevel("Level2")
-            ;
+            .LoadLevel("Level2");
         StartCoroutine(levelScript.Execute());
     }
 

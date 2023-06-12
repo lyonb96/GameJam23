@@ -378,7 +378,7 @@ public class Player : MonoBehaviour
     {
         PauseMovement();
         Animator.SetTrigger("Death");
-        var canvas = FindObjectOfType<Canvas>();
+        var canvas = GameObject.Find("WorldCanvas");
         Instantiate(DeathScreen, canvas.transform);
         // var script = deathscreen.GetComponent<DeathScreenScript>();
         // var currentScene = SceneManager.GetActiveScene().name;

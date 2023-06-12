@@ -15943,8 +15943,8 @@ MonoBehaviour:
   Offset: {x: 0, y: 0}
   Speed: 10
   VerticalFlatten: 0.5
-  MinX: -1000
-  MaxX: 1000
+  MinX: 0.8277397
+  MaxX: 101.5561
 --- !u!1001 &1466695747
 PrefabInstance:
   m_ObjectHideFlags: 0

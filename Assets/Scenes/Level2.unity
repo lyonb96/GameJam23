@@ -976,6 +976,10 @@ PrefabInstance:
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
       objectReference: {fileID: 0}
+    - target: {fileID: 8613712922065019529, guid: 8cb4875342fd8084384e9f291ad7f13c, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8cb4875342fd8084384e9f291ad7f13c, type: 3}
 --- !u!224 &759304858 stripped
@@ -25297,7 +25301,7 @@ MonoBehaviour:
   Offset: {x: 0, y: 0}
   Speed: 10
   VerticalFlatten: 0.5
-  MinX: -1000
+  MinX: -0.9121301
   MaxX: 1000
 --- !u!1001 &1805230462990380999
 PrefabInstance:

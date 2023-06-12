@@ -23,6 +23,7 @@ public class Level1 : MonoBehaviour
         var heart = FindObjectOfType<HeartFollower>();
         var canvas = GameObject.Find("WorldCanvas");
         var doorSlot = GameObject.Find("DoorSlot");
+        var title = FindObjectOfType<TitleCard>();
         var music = FindObjectOfType<AudioSource>();
         var startVolume = music.volume;
         // var door = FindObjectOfType<Door>();
@@ -42,6 +43,7 @@ public class Level1 : MonoBehaviour
             })
             .Do(() => RhythmManager.GetInstance().PlayOnBeat(music))
             .Do(() => player.ResumeMovement())
+            .Do(() => title.Display())
             .DoCoroutine(Extensions.Fade(1.0F, 0.0F, 1.0F, volScale => music.volume = startVolume * volScale))
             .WaitForTrigger("Tutorial1")
             .Do(() => Debug.Log("Hit the first trigger"))

@@ -21,9 +21,11 @@ public class Level2 : MonoBehaviour
         // var door = FindObjectOfType<Door>();
         var music = FindObjectOfType<AudioSource>();
         var startVolume = music.volume;
+        var title = FindObjectOfType<TitleCard>();
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
             .Do(() => player.PauseMovement())
             .FadeFromBlack(OverlayPrefab, 1.0F)
+            .Do(() => title.Display())
             .WaitForSeconds(0.5F)
             .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, new Vector2(0, 1.0F), Color.white, "Woah... What is this place?")
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, new Vector2(0, 0.5F), Extensions.HeartTextColor, "Welcome to the Lost Souls Forest")

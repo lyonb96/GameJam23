@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraFollower : MonoBehaviour
 {
-    private Camera SceneCam;
+    // private Camera SceneCam;
 
-    // public GameObject Focus;
+    private Player Player;
+
+    public GameObject Focus;
 
     public Vector2 Offset;
 
@@ -21,22 +21,28 @@ public class CameraFollower : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SceneCam = FindObjectOfType<Camera>();
+        Player = FindObjectOfType<Player>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (SceneCam == null)
+        var follow = Focus;
+        if (follow == null)
         {
-            return;
+            follow = Player.gameObject;
         }
-        var targetPos = transform.position.With(
-                x: Mathf.Clamp(transform.position.x, MinX, MaxX),
-                y: transform.position.y * VerticalFlatten)
+        var targetPos = follow.transform.position.With(
+                x: Mathf.Clamp(follow.transform.position.x, MinX, MaxX),
+                y: Player.transform.position.y * VerticalFlatten)
             .Truncate() + Offset;
-        var currentPos = SceneCam.transform.position.Truncate();
+        var currentPos = transform.position.Truncate();
         var newPos = Vector2.Lerp(currentPos, targetPos, Time.deltaTime * Speed);
-        SceneCam.transform.position = new Vector2(newPos.x, Mathf.Max(0.0F, newPos.y)).Expand(SceneCam.transform.position.z);
+        transform.position = new Vector2(newPos.x, Mathf.Max(0.0F, newPos.y)).Expand(transform.position.z);
+    }
+
+    public void OverrideFocus(GameObject go)
+    {
+        Focus = go;
     }
 }

@@ -18,6 +18,10 @@ public class Player : MonoBehaviour
     private Health Health;
 
     public GameObject DeathScreen;
+
+    public Material FlashWhite;
+
+    private Material DefaultSpriteMat;
     #endregion
 
     #region Stats
@@ -123,6 +127,8 @@ public class Player : MonoBehaviour
     private AudioSource HitSource;
     private AudioSource DamageSource;
     private AudioSource SlideSource;
+
+    public GameObject Flyout;
     #endregion
 
     // Start is called before the first frame update
@@ -133,6 +139,7 @@ public class Player : MonoBehaviour
         Collider = GetComponent<CapsuleCollider2D>();
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
+        DefaultSpriteMat = Sprite.material;
         Health = GetComponent<Health>();
         var audioSources = GetComponents<AudioSource>();
         SwingSource = audioSources[0];
@@ -346,6 +353,20 @@ public class Player : MonoBehaviour
                 _ => Hit1,
             };
             HitSource.Play();
+            var flyout = Instantiate(
+                Flyout,
+                transform.position + Vector3.up,
+                Quaternion.identity,
+                GameObject.Find("ScreenCanvas").transform);
+            var flyoutScript = flyout.GetComponent<Flyout>();
+            flyoutScript.FlyoutToShow = ActiveAttack.Name switch
+            {
+                "Attack1" => 1,
+                "Attack2" => 2,
+                "Attack3" => 3,
+                _ => 1,
+            };
+            flyoutScript.Display();
         }
     }
 
@@ -409,6 +430,7 @@ public class Player : MonoBehaviour
         // Play damage sound?
         HitSource.clip = Damage;
         HitSource.Play();
+        // StartCoroutine(DamageFlash()); // TODO
     }
 
     private void OnDeath()
@@ -420,6 +442,13 @@ public class Player : MonoBehaviour
         // var script = deathscreen.GetComponent<DeathScreenScript>();
         // var currentScene = SceneManager.GetActiveScene().name;
         // SceneManager.LoadScene(currentScene);
+    }
+
+    private IEnumerator DamageFlash()
+    {
+        Sprite.material = FlashWhite;
+        yield return new WaitForSeconds(0.05F);
+        Sprite.material = DefaultSpriteMat;
     }
 }
 

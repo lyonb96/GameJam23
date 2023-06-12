@@ -30,7 +30,6 @@ public class DeathScreenScript : MonoBehaviour
             item.color = item.color.WithAlpha(0.0F);
         }
         yield return new WaitForSeconds(1);
-        Debug.Log(bgOpacity);
         yield return Extensions.Fade(1.25F, 0.0F, 1.0F, opacity =>
         {
             foreach (var item in items)

@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ef5ec5ab9d327843be8644bf4a2fded, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 40
+  MaxHealth: 66
   KillOnDeath: 0
   OnDeath:
     m_PersistentCalls:
@@ -125,6 +125,8 @@ MonoBehaviour:
   MinX: -1000
   MaxX: 1000
   BossWavePrefab: {fileID: 7087826780160295319, guid: 4602f328e6bf88e4687e38f3a37b609f, type: 3}
+  SmallMeteor: {fileID: 8238824352208558367, guid: c625b79a155961d438213623c4ed39dc, type: 3}
+  LargeMeteor: {fileID: 4538300805186419145, guid: a56742d1faaa357409b6cae0152cfbf4, type: 3}
 --- !u!95 &7262037706452469157
 Animator:
   serializedVersion: 5

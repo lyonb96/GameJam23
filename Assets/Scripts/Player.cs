@@ -123,6 +123,8 @@ public class Player : MonoBehaviour
     private AudioSource HitSource;
     private AudioSource DamageSource;
     private AudioSource SlideSource;
+
+    public GameObject Flyout;
     #endregion
 
     // Start is called before the first frame update
@@ -346,6 +348,20 @@ public class Player : MonoBehaviour
                 _ => Hit1,
             };
             HitSource.Play();
+            var flyout = Instantiate(
+                Flyout,
+                transform.position + Vector3.up,
+                Quaternion.identity,
+                GameObject.Find("ScreenCanvas").transform);
+            var flyoutScript = flyout.GetComponent<Flyout>();
+            flyoutScript.FlyoutToShow = ActiveAttack.Name switch
+            {
+                "Attack1" => 1,
+                "Attack2" => 2,
+                "Attack3" => 3,
+                _ => 1,
+            };
+            flyoutScript.Display();
         }
     }
 

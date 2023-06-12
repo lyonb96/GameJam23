@@ -104,6 +104,7 @@ MonoBehaviour:
   BigSwing: {fileID: 8300000, guid: db877e884b6cc094b959ee6a306fa70d, type: 3}
   Damage: {fileID: 8300000, guid: f4805eb86afbfc34f90ef55501ac85b9, type: 3}
   SlideSound: {fileID: 8300000, guid: d1ed78b703eab3a42bec6b335054d88c, type: 3}
+  Flyout: {fileID: 1571295006105398612, guid: 041a96e0119861c4ba7a34571d8963d8, type: 3}
 --- !u!95 &3371639986198837635
 Animator:
   serializedVersion: 5

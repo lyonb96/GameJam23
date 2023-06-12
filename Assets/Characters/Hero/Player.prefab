@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DeathScreen: {fileID: 46385377940110599, guid: c6d06cd0d168002468cb61387347ec7f, type: 3}
+  FlashWhite: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   MoveSpeed: 150
   SlideSpeed: 0
   SlideDuration: 0

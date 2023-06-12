@@ -16,6 +16,10 @@ public class Boss : MonoBehaviour
 
     public GameObject BossWavePrefab;
 
+    public GameObject SmallMeteor;
+
+    public GameObject LargeMeteor;
+
     private Health Health;
 
     private Player Player;
@@ -32,6 +36,8 @@ public class Boss : MonoBehaviour
 
     private bool RunningAway;
 
+    private Level3 LevelScript;
+
     private bool BossIsLeft => Player.transform.position.x > transform.position.x;
 
     // Start is called before the first frame update
@@ -43,6 +49,7 @@ public class Boss : MonoBehaviour
         Player = FindObjectOfType<Player>();
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
+        LevelScript = FindObjectOfType<Level3>();
     }
 
     // Update is called once per frame
@@ -56,8 +63,7 @@ public class Boss : MonoBehaviour
         if (!Attacking)
         {
             // Pick an attack
-            var attack = Random.Range(0, Phase);
-            switch (attack)
+            switch (Phase)
             {
                 case 0:
                     StartCoroutine(RunAttack1());
@@ -66,7 +72,8 @@ public class Boss : MonoBehaviour
                     StartCoroutine(RunAttack2());
                     break;
                 case 2:
-                    StartCoroutine(RunAttack3());
+                    var attack = Random.Range(0, 2);
+                    StartCoroutine(attack == 0 ? RunAttack1() : RunAttack2());
                     break;
             }
         }
@@ -128,7 +135,23 @@ public class Boss : MonoBehaviour
         Health.SetImmune(true);
         Animator.SetBool("Raise", true);
         // Spawn projectiles here
-        yield return new WaitForSeconds(2.0F);
+        var i = 0;
+        while (i < 6)
+        {
+            var minX = Player.transform.position.x - 6.0F;
+            var maxX = Player.transform.position.x + 6.0F;
+            var x = Random.Range(minX, maxX);
+            var pos = new Vector2(x, 7);
+            var meteorIdx = Random.Range(0, 2);
+            var toSpawn = meteorIdx switch { 0 => SmallMeteor, 1 => LargeMeteor };
+            var meteor = Instantiate(toSpawn, pos, Quaternion.identity);
+            var script = meteor.GetComponent<BossMeteor>();
+            var direction = new Vector2(Random.Range(-2.0F, 2.0F), -1.0F);
+            direction.Normalize();
+            script.Direction = direction;
+            i++;
+            yield return new WaitForSeconds(0.35F);
+        }
         Animator.SetBool("Raise", false);
         Health.SetImmune(false);
         // Step 3: Idle for a bit
@@ -169,6 +192,17 @@ public class Boss : MonoBehaviour
     void OnDeath()
     {
         // Notify the level script
+        if (LevelScript != null)
+        {
+            LevelScript.Checkpoint("BossDead");
+        }
+        Pause = true;
+        MoveDirection = 0.0F;
+    }
+
+    public void Die()
+    {
+        Animator.SetTrigger("Death");
     }
 
     public void DoSwing()

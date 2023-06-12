@@ -32,7 +32,17 @@ public class Level3 : MonoBehaviour
             .ShowSpeechBox(SpeechBubblePrefab, heart.gameObject, Vector2.up, Extensions.HeartTextColor, "Gottem")
             .Do(() => player.ResumeMovement())
             .Do(() => boss.Pause = false)
-            .Do(() => camera.OverrideFocus(anchor));
+            .Do(() => camera.OverrideFocus(anchor))
+            .WaitForTrigger("BossDead")
+            .Do(() => camera.OverrideFocus(boss.gameObject))
+            .Do(() => player.PauseMovement())
+            .ShowSpeechBox(SpeechBubblePrefab, boss.gameObject, Vector2.up, Color.white, "Can't believe you did it, etc...")
+            .Do(() => boss.Die())
+            .WaitForSeconds(1.0F)
+            .Do(() => camera.OverrideFocus(null))
+            // Dialog between player and heart
+            .ShowSpeechBox(SpeechBubblePrefab, player.gameObject, Vector2.up, Color.white, "Finishing dialog goes here")
+            .FadeToBlack(OverlayPrefab, 3.0F);
         StartCoroutine(levelScript.Execute());
     }
 

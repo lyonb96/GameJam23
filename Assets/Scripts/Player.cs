@@ -110,7 +110,7 @@ public class Player : MonoBehaviour
                 TimeWindow = 1F,
                 AttackCenter = new Vector2(0, 0),
                 AttackExtents = new Vector2(2.5F, 1F),
-                Damage = 3,
+                Damage = 4,
             }
         }
     };

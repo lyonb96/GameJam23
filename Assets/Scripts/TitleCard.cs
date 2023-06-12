@@ -17,7 +17,7 @@ public class TitleCard : MonoBehaviour
     private IEnumerator DoTitleCardSequence()
     {
         yield return Extensions.Fade(0.5F, 0.0F, 1.0F, Fade);
-        yield return new WaitForSeconds(3.0F);
+        yield return new WaitForSeconds(5.0F);
         yield return Extensions.Fade(0.5F, 1.0F, 0.0F, Fade);
     }
 

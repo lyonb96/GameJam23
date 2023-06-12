@@ -20,6 +20,7 @@ public class Level2 : MonoBehaviour
         var doorSlot = GameObject.Find("DoorSlot");
         // var door = FindObjectOfType<Door>();
         var music = FindObjectOfType<AudioSource>();
+        var tooltip = FindObjectOfType<TooltipScript>();
         var startVolume = music.volume;
         var title = FindObjectOfType<TitleCard>();
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
@@ -46,6 +47,7 @@ public class Level2 : MonoBehaviour
                 "That slime is a creature the Keeper of Souls brought into this realm to stop travelers",
                 "Luckily, that sword of yours should serve you well.",
                 "Try timing your attacks to the beat!")
+            .Do(() => tooltip.Show("Click LMB to attack... on beat!"))
             .Do(() => player.ResumeMovement())
             .Do(() => firstSlimeScript.enabled = true)
             .WaitForTrigger("FinalDoor")

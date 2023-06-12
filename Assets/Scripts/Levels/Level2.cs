@@ -71,7 +71,7 @@ public class Level2 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (levelScript.WaitingForContinue && Input.GetButtonDown("Continue"))
+        if (levelScript.WaitingForContinue && Input.GetButtonDown("Attack"))
         {
             levelScript.Continue();
         }

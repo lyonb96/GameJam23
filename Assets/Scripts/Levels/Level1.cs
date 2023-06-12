@@ -24,7 +24,7 @@ public class Level1 : MonoBehaviour
         var canvas = GameObject.Find("WorldCanvas");
         var doorSlot = GameObject.Find("DoorSlot");
         var title = FindObjectOfType<TitleCard>();
-        var music = FindObjectOfType<AudioSource>();
+        var music = GameObject.Find("LevelMusic").GetComponent<AudioSource>();
         var startVolume = music.volume;
         // var door = FindObjectOfType<Door>();
         levelScript = new LevelScript(Instantiate, Destroy, canvas)
@@ -82,7 +82,7 @@ public class Level1 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (levelScript.WaitingForContinue && Input.GetButtonDown("Continue"))
+        if (levelScript.WaitingForContinue && Input.GetButtonDown("Attack"))
         {
             levelScript.Continue();
         }
